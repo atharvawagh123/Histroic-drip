@@ -1,0 +1,126 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'Bootzy';
+  src: url('/fonts/BootzyTM.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer base {
+  :root {
+    --bg-void: #050505;
+    --bone: #e8e4dc;
+    --ash: #6f6f73;
+    --blood: #8c0a14;
+    --gold: #a88a4a;
+  }
+
+  *, *::before, *::after {
+    font-family: 'Bootzy', sans-serif;
+  }
+
+  html {
+    font-family: 'Bootzy', sans-serif;
+    background-color: var(--bg-void);
+    color: var(--bone);
+    scroll-behavior: auto !important;
+  }
+
+  body {
+    font-family: 'Bootzy', sans-serif;
+    background-color: var(--bg-void);
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Gothic Minimal Scrollbar */
+  ::-webkit-scrollbar {
+    width: 3px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #050505;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #303033;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #8c0a14;
+  }
+}
+
+@layer utilities {
+  .sigil-cut {
+    clip-path: polygon(
+      8px 0%,
+      calc(100% - 8px) 0%,
+      100% 8px,
+      100% calc(100% - 8px),
+      calc(100% - 8px) 100%,
+      8px 100%,
+      0% calc(100% - 8px),
+      0% 8px
+    );
+  }
+
+  .sigil-cut-sharp {
+    clip-path: polygon(
+      0 0,
+      calc(100% - 14px) 0,
+      100% 14px,
+      100% 100%,
+      14px 100%,
+      0 calc(100% - 14px)
+    );
+  }
+
+  .blood-glow {
+    filter: drop-shadow(0 0 12px rgba(140, 10, 20, 0.65));
+  }
+
+  .blood-glow-subtle {
+    filter: drop-shadow(0 0 8px rgba(140, 10, 20, 0.4));
+  }
+
+  .blood-text-glow {
+    text-shadow: 0 0 20px rgba(140, 10, 20, 0.7);
+  }
+
+  .bone-text-glow {
+    text-shadow: 0 0 30px rgba(232, 228, 220, 0.35);
+  }
+}
+
+#canvas-container {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+}
+
+#canvas-container canvas {
+  pointer-events: auto;
+}
+
+#content-layer {
+  position: relative;
+  z-index: 10;
+  pointer-events: none;
+}
+
+#content-layer > * {
+  pointer-events: auto;
+}
+
+body.custom-cursor-active,
+body.custom-cursor-active * {
+  cursor: none !important;
+}
