@@ -218,15 +218,13 @@ function GLTFSneaker({ url }: { url: string }) {
       roughnessMap,
       roughness: 0.38,          // Lower = more micro-sheen across canvas threads
       metalness: 0.0,
-      envMapIntensity: 0.0,     // No envMap needed — manual rig is premium enough
-      side: THREE.DoubleSide,
+      envMapIntensity: 0.0,
+      side: THREE.FrontSide,
     });
 
     clone.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
         const mesh = child as THREE.Mesh;
-        mesh.castShadow = true;
-        mesh.receiveShadow = true;
         mesh.material = authenticMat;
       }
     });

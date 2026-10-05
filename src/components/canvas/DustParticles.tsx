@@ -26,16 +26,7 @@ export function DustParticles({ count = 35 }: { count?: number }) {
 
   useFrame((_, delta) => {
     if (!pointsRef.current) return;
-    const posAttr = pointsRef.current.geometry.attributes.position;
-    const array = posAttr.array as Float32Array;
-
-    for (let i = 0; i < count; i++) {
-      array[i * 3 + 1] += speeds[i] * delta;
-      if (array[i * 3 + 1] > 3.5) {
-        array[i * 3 + 1] = -1.2;
-      }
-    }
-    posAttr.needsUpdate = true;
+    pointsRef.current.rotation.y += delta * 0.015;
   });
 
   return (

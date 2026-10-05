@@ -4,8 +4,10 @@ import { OrbitControls, PerformanceMonitor } from '@react-three/drei';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import * as THREE from 'three';
 import { ReflectiveFloor } from './ReflectiveFloor';
-import { DustParticles } from './DustParticles';
+
 import { Sneaker } from './Sneaker';
+import { CyberSigil } from './CyberSigil';
+import { DustParticles } from './DustParticles';
 import { Lighting } from './Lighting';
 import { Effects } from './Effects';
 import {
@@ -70,14 +72,13 @@ export function Scene() {
     >
       <Canvas
         camera={{ position: [0, 0.12, 3.2], fov: 36 }}
-        dpr={isMobile ? 1 : [1, 1.5]}
+        dpr={isMobile ? 1 : [1, 1.25]}
         gl={{
-          antialias: false,
+          antialias: true,
           powerPreference: 'high-performance',
           toneMapping: THREE.ACESFilmicToneMapping,
           toneMappingExposure: 1.15,
         }}
-        shadows={!isMobile}
       >
         <PerformanceMonitor
           onIncline={() => setAdaptivePerformance(1.5, true)}
@@ -86,7 +87,6 @@ export function Scene() {
 
         {/* Pure Clean Black Void */}
         <color attach="background" args={['#050505']} />
-        <fog attach="fog" args={['#050505', 6.0, 16]} />
 
         {/* OrbitControls: 360 horizontal drag, limited vertical tilt, min/max zoom */}
         <OrbitControls
@@ -110,7 +110,8 @@ export function Scene() {
 
         <Lighting />
         <ReflectiveFloor />
-        <DustParticles />
+        <DustParticles count={35} />
+        <CyberSigil />
         <Sneaker />
         <Effects />
       </Canvas>

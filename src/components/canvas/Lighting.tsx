@@ -30,16 +30,6 @@ export function Lighting() {
         position={[3.2, 4.2, 3.5]}
         color="#ffffff"
         intensity={3.8}
-        castShadow
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
-        shadow-camera-near={1}
-        shadow-camera-far={12}
-        shadow-camera-left={-2.5}
-        shadow-camera-right={2.5}
-        shadow-camera-top={2.5}
-        shadow-camera-bottom={-2.5}
-        shadow-bias={-0.0001}
       />
 
       {/* 4. Secondary Fill Key Light (Front-Left-Mid) - Sculpts the opposite side */}

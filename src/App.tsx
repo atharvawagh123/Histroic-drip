@@ -31,7 +31,7 @@ export default function App() {
     if (reducedMotion) return;
 
     const lenis = new Lenis({
-      duration: 1.4,
+      duration: 1.0,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
       touchMultiplier: 1.5,
@@ -46,7 +46,7 @@ export default function App() {
     };
 
     gsap.ticker.add(tickerCallback);
-    gsap.ticker.lagSmoothing(0);
+    gsap.ticker.lagSmoothing(500, 33);
 
     // Global anchor click smooth handler via Lenis
     const handleAnchor = (e: MouseEvent) => {
@@ -95,7 +95,7 @@ export default function App() {
       {/* Minimal Gothic Glass Navbar */}
       <Navbar />
 
-      {/* 3 Short Cinematic Sections Only */}
+      {/* 3 Short Cinematic Sections with Motion Graphics */}
       <main id="content-layer" className="relative z-10 w-full overflow-hidden">
         {/* Section 1: Hero */}
         <Hero />

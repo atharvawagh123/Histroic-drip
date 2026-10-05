@@ -1,15 +1,17 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
+import { Play, Pause, X, RotateCcw } from 'lucide-react';
 import {
   sceneState,
   subscribeScene,
   toggleShowcase,
   setShowcaseMode,
+  toggleShowcasePause,
+  ShowcaseMode,
 } from '../../lib/sceneState';
+import { sound } from '../../lib/audio';
 
 export function ShowcaseControl() {
   const [showcase, setShowcase] = useState({ ...sceneState.showcase });
-  // Hidden by default until user presses Alt + 1
-  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     return subscribeScene(() => {
@@ -17,103 +19,86 @@ export function ShowcaseControl() {
     });
   }, []);
 
-  // Expose global trigger for devtools & accessibility
-  useEffect(() => {
-    (window as any).showAnimationButton = () => setIsVisible(true);
-    (window as any).hideAnimationButton = () => {
-      toggleShowcase(false);
-      setIsVisible(false);
-    };
-    (window as any).toggleAnimationButton = () => {
-      setIsVisible((prev) => {
-        if (prev) {
-          toggleShowcase(false);
-          return false;
-        }
-        return true;
-      });
-    };
-    return () => {
-      delete (window as any).showAnimationButton;
-      delete (window as any).hideAnimationButton;
-      delete (window as any).toggleAnimationButton;
-    };
-  }, []);
-
-  // Keyboard shortcut listener: ALT + 1 toggles show / disappear
+  // Keyboard shortcut listener: ESC key stops showcase
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      const isAlt1 = e.altKey && (e.key === '1' || e.code === 'Digit1' || e.keyCode === 49);
-
-      if (isAlt1) {
+      if (e.key === 'Escape' && showcase.active) {
         e.preventDefault();
-        e.stopPropagation();
-        // Only toggle button visibility — NEVER stop the animation
-        setIsVisible((prev) => !prev);
-        return;
-      }
-
-      // Escape key stops showcase and makes button disappear
-      if (e.key === 'Escape') {
-        e.preventDefault();
+        sound.playClick();
         toggleShowcase(false);
-        setIsVisible(false);
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown, true);
-    return () => window.removeEventListener('keydown', handleKeyDown, true);
-  }, []);
-
-  const handleToggle = useCallback(() => {
-    if (!showcase.active) {
-      setShowcaseMode('orbit');
-      toggleShowcase(true);
-    } else {
-      toggleShowcase(false);
-    }
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [showcase.active]);
 
-  // If not triggered by Alt + 1, do not render any UI (clean, zero clutter)
-  if (!isVisible) {
+  if (!showcase.active) {
     return null;
   }
 
-  // Compact, sleek, minimal button (No big UI, no top banners)
+  const modes: { id: ShowcaseMode; label: string }[] = [
+    { id: 'orbit', label: '360° ORBIT' },
+    { id: 'vamp', label: 'VAMP GRAFFITI' },
+    { id: 'profile', label: 'PROFILE' },
+    { id: 'sole', label: 'OBSIDIAN SOLE' },
+  ];
+
   return (
-    <div className="fixed bottom-7 sm:bottom-8 left-1/2 -translate-x-1/2 z-40 flex items-center pointer-events-auto select-none transition-all duration-300 animate-fadeIn">
-      <div className="relative group">
-        {/* Subtle ambient crimson glow */}
-        <div className="absolute -inset-1 rounded-full bg-[#8c0a14]/30 blur-md opacity-70 group-hover:opacity-100 transition-opacity" />
+    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center pointer-events-auto select-none transition-all duration-300 animate-in fade-in slide-in-from-bottom-4">
+      <div className="relative p-1.5 rounded-full border border-[#8c0a14]/60 bg-[#08080c]/90 backdrop-blur-2xl shadow-[0_10px_40px_rgba(140,10,20,0.4)] flex items-center gap-1.5 sm:gap-2">
+        {/* Mode Selector Buttons */}
+        <div className="flex items-center gap-1 bg-[#101015] p-1 rounded-full border border-[#232328]">
+          {modes.map((m) => {
+            const isCurrent = showcase.mode === m.id;
+            return (
+              <button
+                key={m.id}
+                onClick={() => {
+                  sound.playClick();
+                  setShowcaseMode(m.id);
+                }}
+                onMouseEnter={() => sound.playHover()}
+                className={`px-3 py-1.5 rounded-full text-[10px] font-bootzy tracking-wider uppercase transition-all cursor-pointer ${
+                  isCurrent
+                    ? 'bg-[#8c0a14] text-white font-bold shadow-[0_0_10px_rgba(140,10,20,0.6)]'
+                    : 'text-[#6f6f73] hover:text-[#e8e4dc]'
+                }`}
+              >
+                {m.label}
+              </button>
+            );
+          })}
+        </div>
 
-        {/* Minimal Button */}
+        {/* Orbit Pause / Play Toggle (Only relevant in orbit mode) */}
+        {showcase.mode === 'orbit' && (
+          <button
+            onClick={() => {
+              sound.playClick();
+              toggleShowcasePause();
+            }}
+            onMouseEnter={() => sound.playHover()}
+            title={showcase.isPaused ? 'Resume 360 rotation' : 'Pause rotation'}
+            className="p-2 rounded-full bg-[#101015] hover:bg-[#1a1a22] text-[#e8e4dc] border border-[#232328] transition-colors cursor-pointer"
+          >
+            {showcase.isPaused ? <Play size={12} /> : <Pause size={12} />}
+          </button>
+        )}
+
+        {/* Exit Showcase Button */}
         <button
-          id="btn-start-animation"
-          onClick={handleToggle}
-          className={`relative px-5 py-2.5 rounded-full backdrop-blur-xl border flex items-center gap-2.5 text-xs font-bootzy tracking-widest uppercase transition-all duration-300 shadow-[0_10px_30px_rgba(0,0,0,0.85)] cursor-pointer ${
-            showcase.active
-              ? 'bg-[#8c0a14]/20 border-[#8c0a14] text-[#ffffff] shadow-[0_0_20px_rgba(140,10,20,0.4)]'
-              : 'bg-[#09090c]/90 border-[#303033] hover:border-[#8c0a14] text-[#e8e4dc] hover:text-[#ffffff]'
-          }`}
-          aria-label={showcase.active ? 'Stop Animation' : 'Start Animation'}
+          onClick={() => {
+            sound.playClick();
+            toggleShowcase(false);
+          }}
+          onMouseEnter={() => sound.playHover()}
+          title="Exit 360 showcase (ESC)"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1e0508] hover:bg-[#8c0a14] text-[#e8e4dc] border border-[#8c0a14]/50 transition-colors text-[10px] font-bootzy tracking-wider uppercase cursor-pointer"
         >
-          {/* Status Dot */}
-          <span className="relative flex h-2 w-2">
-            {showcase.active && (
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#8c0a14] opacity-75" />
-            )}
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#8c0a14]" />
-          </span>
-
-          {/* Action Text */}
-          <span className="font-bootzy">
-            {showcase.active ? 'STOP ANIMATION' : 'START ANIMATION'}
-          </span>
-
-          {/* Keycap Badge */}
-          <span className="text-[9px] font-bootzy text-[#6f6f73] border-l border-[#303033] pl-2 tracking-wider">
-            {showcase.active ? 'ESC' : 'ALT+1'}
-          </span>
+          <X size={12} />
+          <span className="hidden sm:inline">EXIT</span>
+          <span className="text-[8px] text-[#6f6f73] ml-0.5">ESC</span>
         </button>
       </div>
     </div>

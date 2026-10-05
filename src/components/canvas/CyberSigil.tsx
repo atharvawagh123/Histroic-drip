@@ -54,17 +54,9 @@ export function CyberSigil() {
     return texture;
   }, []);
 
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     if (!sigilRef.current) return;
-    const t = state.clock.getElapsedTime();
-
-    // Slow subtle rotation
-    sigilRef.current.rotation.z += delta * 0.025;
-
-    // Subdued breathing opacity (0.26 to 0.36) so the shoe remains the hero
-    if (matRef.current) {
-      matRef.current.opacity = 0.3 + Math.sin(t * 1.2) * 0.06;
-    }
+    sigilRef.current.rotation.z += delta * 0.02;
   });
 
   return (
